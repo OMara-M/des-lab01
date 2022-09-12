@@ -24,7 +24,18 @@ class KeyManager:
         return: random bytes of length (key_len // 8)
         """
         # TODO: your code here
-        rand_bytes = bytes() # just a placeholder
+        key_string = ''.join(random.choice('0123456789ABCDEF') for i in range(key_len))
+        
+        bits = []
+        for digit in key_string:
+            bits.append(digit)
+        
+        print(bits)
+
+        my_bytes = bytes(bits)
+        print(my_bytes)
+
+        rand_bytes = bytes(key_string ) # just a placeholder
 
         return rand_bytes
 
@@ -292,3 +303,7 @@ class DES:
         """
         # TODO: your code here
         return '' # just a placeholder
+
+if __name__ == '__main__':
+    test_manager = KeyManager()
+    test_manager.generate_key()
