@@ -1,4 +1,3 @@
-
 from copy import deepcopy
 import random
 from typing import Iterable
@@ -24,18 +23,9 @@ class KeyManager:
         return: random bytes of length (key_len // 8)
         """
         # TODO: your code here
-        key_string = ''.join(random.choice('0123456789ABCDEF') for i in range(key_len))
-        
-        bits = []
-        for digit in key_string:
-            bits.append(digit)
-        
-        print(bits)
+        key_string = ''.join(random.choice('0123456789ABCDEF') for i in range(key_len//8))
 
-        my_bytes = bytes(bits)
-        print(my_bytes)
-
-        rand_bytes = bytes(key_string ) # just a placeholder
+        rand_bytes = bytes(key_string, 'utf-8')
 
         return rand_bytes
 
@@ -78,7 +68,35 @@ def permute(raw_seq: Iterable, table: Iterable[int]) -> list:
     permute bits with a table
     """
     # TODO: your code here
-    return [] # just a placeholder
+    
+    print(raw_seq)
+    bit_number = 0
+    bit_list = []
+    for i in raw_seq:
+        
+        if i == 1:
+            # print(bit_number)
+            bit_list.append(bit_number)
+        bit_number += 1
+
+    # print(ones_list)
+
+    output_list = []
+    for i in bit_list:
+        count = 0
+        for j in table:
+            if i == j:
+                output_list.append(count)
+            count += 1
+    # print(output_list)
+
+    output =[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for i in output_list:
+        output[i] = 1
+    print(output)
+
+    return output # just a placeholder
 
 def xor(bits1: Iterable[int], bits2: Iterable[int]) -> 'list[int]':
     """
@@ -224,9 +242,22 @@ class DES:
         raw_key: 64 bits
         return: 16 * (48bits key)
         """
+        key_after_drop: list[int] = permute(key, DES.KEY_DROP)
 
         keys: 'list[list[int]]' = []
-        # TODO: your code here
+        l_key = key_after_drop [:28]
+        r_key = key_after_drop [28:]
+
+        for i in range(16):
+            #key shift
+            shift_num = DES.BIT_SHIFT[i]
+            l_key = l_key[shift_num:] + l_key[:shift_num]
+            r_key = r_key[shift_num:] + r_key[:shift_num]
+
+            #key compresion (combnation)
+            combination = l_key + r_key
+            key_after_compression = permute(combination, DES.KEY_COMPRESSION)
+            keys.append(key_after_compression)
 
         return keys
 
@@ -275,7 +306,15 @@ class DES:
         block: 64 bits.
         return: 64 bits.
         """
-        # TODO: your code here
+        block = permute(block, DES.IP)
+        L = block[:32]
+        R = block[32:]
+
+        for i, key in enumerate(self.keys):
+            L, R = DES.mixer(L, R, key)
+            if i != len(self.keys) - 1:
+                L, R = DES.swapper(L, R)
+        # TODO here
         return [] # just a placeholder
 
     def dec_block(self, block: 'list[int]') -> 'list[int]':
@@ -293,17 +332,39 @@ class DES:
         Handle block division here.
         *Inputs are guaranteed to have a length divisible by 8.
         """
-        # TODO: your code here
-        return b'' # just a placeholder
+        #length = len(msg_str)
+        msg_bytes = msg_str.encode('utf-8')
+
+        cipher_bits = []
+        for i in range(len(msg_bytes) // 8):
+            block_bytes = msg_bytes[i * 8 : (i+1) *8]
+            block_bits = self.enc_block(bitize(block_bytes))
+            cipher_bits.extend(block_bits)
+
+        cipher_byts = debitize(cipher_bits)
+        return cipher_byts
     
     def decrypt(self, msg_bytes: bytes) -> str:
         """
         Decrypt the whole message.
         Similar to encrypt.
         """
-        # TODO: your code here
-        return '' # just a placeholder
+        plain_bits = []
+        i = len(msg_bytes)
+        for i in range(len(msg_bytes) // 8):
+            block_bytes = msg_bytes[i * 8 : (i + 1) * 8]
+            block_bits = self.dec_block(bitize(block_bytes))
+            plain_bits.extend(block_bits)
+
+        plain_byts = debitize(plain_bits)
+        return plain_byts.decode('utf-8')
 
 if __name__ == '__main__':
-    test_manager = KeyManager()
-    test_manager.generate_key()
+    # test_manager = KeyManager()
+    
+    # test_manager.save_key('key.txt', test_manager.generate_key())
+    
+    raw_seq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] 
+    output = permute(raw_seq, DES.IP)
+    permute(output, DES.FP)
