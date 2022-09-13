@@ -1,4 +1,5 @@
 from copy import deepcopy
+from platform import mac_ver
 import random
 from typing import Iterable
 
@@ -314,8 +315,8 @@ class DES:
             L, R = DES.mixer(L, R, key)
             if i != len(self.keys) - 1:
                 L, R = DES.swapper(L, R)
-        # TODO here
-        return [] # just a placeholder
+    
+        return block
 
     def dec_block(self, block: 'list[int]') -> 'list[int]':
         """
@@ -324,7 +325,19 @@ class DES:
         return: 64 bits
         """
         # TODO: your code here
-        return [] # just a placeholder
+        block = permute(block, DES.IP)
+        L = block[:32]
+        R = block[32:]
+
+        for i, key in enumerate(self.reverse_keys):
+            # print(bit2hex(L), bit2hex(R), bit2hex(key))
+            if i != 0:
+                L,R = DES.swapper(L,R)
+            L,R = DES.mixer(L,R, key)
+        # print(bit2hex(L), bit2hex(R), bit2hex(key))
+
+        block = permute(L + R, self.FP)
+        return block 
 
     def encrypt(self, msg_str: str) -> bytes:
         """
@@ -332,8 +345,16 @@ class DES:
         Handle block division here.
         *Inputs are guaranteed to have a length divisible by 8.
         """
-        #length = len(msg_str)
+        # padding
+        # length = len(msg_str)
+        # if length % 8 != 0:
+        #     msg_str += '\0' * (8 - length % 8)
         msg_bytes = msg_str.encode('utf-8')
+
+        # mac 
+        # mac = sha256(msg_bytes + self.mac_key).digest()
+        #concatenate mac and msg
+        #msg_bytes += mac
 
         cipher_bits = []
         for i in range(len(msg_bytes) // 8):
@@ -342,7 +363,7 @@ class DES:
             cipher_bits.extend(block_bits)
 
         cipher_byts = debitize(cipher_bits)
-        return cipher_byts
+        return cipher_byts#, mac
     
     def decrypt(self, msg_bytes: bytes) -> str:
         """
@@ -357,14 +378,23 @@ class DES:
             plain_bits.extend(block_bits)
 
         plain_byts = debitize(plain_bits)
-        return plain_byts.decode('utf-8')
+        #pain_byts_with_mac = debitize(plain_bits)
+        # plain_byts - plain_byts_with_mac[:l-32]
+        # mac = plain_byts_with_mac[l-32]
+        #verify mac
+        # if sha256(plain_byts + self.mac_key).digest() != mac:
+        #     print('MAC verfication failed!')
+        #     print('mac of recived msg:', sha256(plain_byts + self.mac_key).digest())
+        #     print('MAC',mac)
+
+        return plain_byts.decode('utf-8')#, sha256(plain_byts + self.mac_key).digest()
 
 if __name__ == '__main__':
-    # test_manager = KeyManager()
+    test_manager = KeyManager()
     
-    # test_manager.save_key('key.txt', test_manager.generate_key())
+    test_manager.save_key('key.txt', test_manager.generate_key())
     
-    raw_seq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] 
-    output = permute(raw_seq, DES.IP)
-    permute(output, DES.FP)
+#     raw_seq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+# 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] 
+#     output = permute(raw_seq, DES.IP)
+#     permute(output, DES.FP)

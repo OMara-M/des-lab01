@@ -39,7 +39,8 @@ if __name__ == '__main__':
         msg = input('> ')
         if msg == 'exit':
             break
-        
+        cipher_text = server.recv()
+        msg, mac = des
         # TODO: your code here
 
     server.close()
