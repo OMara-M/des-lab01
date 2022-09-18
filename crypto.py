@@ -36,8 +36,8 @@ def bitize(byts: bytes) -> 'list[int]':
     bitize bytes
     """
     bits = []
-    # TODO: your code here
-
+    for byte in byts:
+        bits.extend([ (byte >> (7-i) & 1) for i in range(8) ])
     return bits
 
 def debitize(bits: Iterable[int]) -> bytes:
@@ -49,7 +49,13 @@ def debitize(bits: Iterable[int]) -> bytes:
 
     byts = []
 
-    # TODO: your code here
+    values = []
+    length = len(bits) // 8
+    for i in range(length):
+        value = sum([ bits[i * 8 + j] << (7-j) for j in range(8) ])
+        values.append(value)
+    
+    byts = bytes(values)
     return byts
 
 def bit2hex(bits: Iterable[int]) -> str:
@@ -391,8 +397,6 @@ class DES:
 
 if __name__ == '__main__':
     test_manager = KeyManager()
-    
-    test_manager.save_key('key.txt', test_manager.generate_key())
     
 #     raw_seq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 # 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] 
