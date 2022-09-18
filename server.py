@@ -34,13 +34,13 @@ if __name__ == '__main__':
     des = DES(key)
 
     while True:
-        # TODO: your code here
+        cipher_text = server.recv()
+        msg = des.decrypt(cipher_text)
 
         msg = input('> ')
         if msg == 'exit':
             break
-        cipher_text = server.recv()
-        msg, mac = des
-        # TODO: your code here
+        cipher_text = des.encrypt(msg)
+        server.send(cipher_text)
 
     server.close()
