@@ -76,7 +76,7 @@ def permute(raw_seq: Iterable, table: Iterable[int]) -> list:
     """
     # TODO: your code here
     
-    print(raw_seq)
+    # print(raw_seq)
     bit_number = 0
     bit_list = []
     for i in raw_seq:
@@ -101,7 +101,7 @@ def permute(raw_seq: Iterable, table: Iterable[int]) -> list:
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for i in output_list:
         output[i] = 1
-    print(output)
+    # print(output)
 
     return output # just a placeholder
 
@@ -110,7 +110,7 @@ def xor(bits1: Iterable[int], bits2: Iterable[int]) -> 'list[int]':
     xor two bits
     """
     # TODO: your code here
-    return [] # just a placeholder
+    return [bits1[i] ^ bits2[i] for i in range(len(bits1))]
 
 class DES:
 
@@ -276,9 +276,27 @@ class DES:
         key: 48 bits
         return: 32 bits
         """
-        # TODO: your code here
+        # expansion, expand R (32 bits) to 48 bits
+        expanded_R = permute(R, DES.D_EXPANSION)
 
-        return [] # just a placeholder
+        # xor
+        xor_result = xor(expanded_R, key)
+
+        # s-boxes
+        s_box_results: list[int] = []
+        box_num = len(xor_result) // 6 # 48 / 6 = 8
+        for i in range(box_num):
+            row_num = xor_result[i * 6 + 0] * 2 + xor_result[i * 6 + 5]
+            col_num = xor_result[i * 6 + 1] * 8 + xor_result[i * 6 + 2] * 4 + xor_result[i * 6 + 3] * 2 + xor_result[i * 6 + 4]
+            result_int = DES.S[i][row_num][col_num]
+
+            result_byts = result_int.to_bytes(1, 'big')
+            result_bits = bitize(result_byts)[4:]
+
+            s_box_results.extend(result_bits)
+
+        s_box_results = permute(s_box_results, DES.D_STRAIGHT)
+        return s_box_results
 
     @staticmethod  
     def mixer(L: 'list[int]', R: 'list[int]', sub_key: 'list[int]') -> 'tuple[list[int]]':
@@ -287,9 +305,9 @@ class DES:
         sub_key: 48 bits
         return: 32 bits
         """
-        # TODO: your code here
-        # tips: finish f and xor first, then use them here
-
+        # mixer
+        f_result = DES.f(R, sub_key) # 32 bits
+        L = xor(L, f_result)
         return (L, R) # just a placeholder
     
     @staticmethod
@@ -321,7 +339,8 @@ class DES:
             L, R = DES.mixer(L, R, key)
             if i != len(self.keys) - 1:
                 L, R = DES.swapper(L, R)
-    
+
+        block = permute(L+R, self.FP)    
         return block
 
     def dec_block(self, block: 'list[int]') -> 'list[int]':
