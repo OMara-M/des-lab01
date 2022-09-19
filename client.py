@@ -35,10 +35,13 @@ if __name__ == '__main__':
         msg = input('> ')
         if msg == 'exit':
             break
-        cipher_text, mac = des.encrypt(msg)
+        cipher_text= des.encrypt(msg)
+        print("transmitting cipher: %s\n" % cipher_text)
         client.send(cipher_text)
-        
+
         cipher_text = client.recv()
+        print("From server: %s" % cipher_text)
         msg = des.decrypt(cipher_text)
+        print("decrypted msg: %s\n" % msg)
         
     client.close()

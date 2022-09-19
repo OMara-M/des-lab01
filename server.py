@@ -13,6 +13,7 @@ class Server:
         self.s.bind((self.addr, self.port))
         self.s.listen(1)
         self.conn, self.addr = self.s.accept()
+        print("server running")
 
     def send(self, msg_bytes: bytes):
         self.conn.send(msg_bytes)
@@ -34,13 +35,17 @@ if __name__ == '__main__':
     des = DES(key)
 
     while True:
+        print("waiting for transmission")
         cipher_text = server.recv()
+        print("From client: %s" % cipher_text)
         msg = des.decrypt(cipher_text)
+        print("decrypted msg: %s\n" % msg)
 
         msg = input('> ')
         if msg == 'exit':
             break
         cipher_text = des.encrypt(msg)
+        print("Transmitting cipher: %s\n" % cipher_text)
         server.send(cipher_text)
 
     server.close()

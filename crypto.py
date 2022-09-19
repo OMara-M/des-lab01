@@ -74,36 +74,36 @@ def permute(raw_seq: Iterable, table: Iterable[int]) -> list:
     """
     permute bits with a table
     """
-    # TODO: your code here
+    return [raw_seq[i] for i in table]
     
-    # print(raw_seq)
-    bit_number = 0
-    bit_list = []
-    for i in raw_seq:
+#     # print(raw_seq)
+#     bit_number = 0
+#     bit_list = []
+#     for i in raw_seq:
         
-        if i == 1:
-            # print(bit_number)
-            bit_list.append(bit_number)
-        bit_number += 1
+#         if i == 1:
+#             # print(bit_number)
+#             bit_list.append(bit_number)
+#         bit_number += 1
 
-    # print(ones_list)
+#     # print(ones_list)
 
-    output_list = []
-    for i in bit_list:
-        count = 0
-        for j in table:
-            if i == j:
-                output_list.append(count)
-            count += 1
-    # print(output_list)
+#     output_list = []
+#     for i in bit_list:
+#         count = 0
+#         for j in table:
+#             if i == j:
+#                 output_list.append(count)
+#             count += 1
+#     # print(output_list)
 
-    output =[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for i in output_list:
-        output[i] = 1
-    # print(output)
+#     output =[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+# 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+#     for i in output_list:
+#         output[i] = 1
+#     # print(output)
 
-    return output # just a placeholder
+#     return output # just a placeholder
 
 def xor(bits1: Iterable[int], bits2: Iterable[int]) -> 'list[int]':
     """
@@ -371,9 +371,9 @@ class DES:
         *Inputs are guaranteed to have a length divisible by 8.
         """
         # padding
-        # length = len(msg_str)
-        # if length % 8 != 0:
-        #     msg_str += '\0' * (8 - length % 8)
+        length = len(msg_str)
+        if length % 8 != 0:
+            msg_str += '\0' * (8 - length % 8)
         msg_bytes = msg_str.encode('utf-8')
 
         # mac 
